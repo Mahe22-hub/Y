@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ouverture de Paquets de Cartes Animaux</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #1e3a8a; /* Fond bleu */
+      margin: 0;
+      padding: 20px;
+      color: white;
+    }
+    h1 {
+      color: #f97316; /* Titre orange */
+      margin-bottom: 20px;
+    }
+    #username {
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 5px;
+      border: 2px solid #ccc;
+      width: 250px;
+      margin-bottom: 20px;
+    }
+    #saveUsernameButton {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #f97316; /* Bouton orange */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #saveUsernameButton:hover {
+      background-color: #fb923c;
+    }
+    #packButton, #specialPackButton, #resetButton {
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #f97316; /* Boutons orange */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    #packButton:hover, #specialPackButton:hover, #resetButton:hover {
+      background-color: #fb923c;
+    }
+    .card-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .card {
+      width: 120px;
+      height: 180px;
+      background-color: white;
+      border-radius: 15px;
+      border: 2px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 10px;
+      transition: transform 0.3s;
+      color: #333;
+    }
+    .card:hover {
+      transform: scale(1.1);
+    }
+    .commun { background-color: #f7f7f7; border-color: gray; }
+    .rare { background-color: #cce5ff; border-color: blue; }
+    .epic { background-color: #f2d6f5; border-color: purple; }
+    .legendaire { background-color: #fff3cd; border-color: gold; }
+    .nostalgie { background-color: #d1ecf1; border-color: teal; }
+    .argent { background-color: #e2e3e5; border-color: silver; }
+    .or { background-color: #fff3cd; border-color: orange; }
+    .platine { background-color: #d1ecf1; border-color: lightblue; }
+    .diamant { background-color: #d4edda; border-color: cyan; }
+    .arc-en-ciel { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); border-color: transparent; }
+    .card h3 {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+    .card .emoji {
+      font-size: 30px;
+    }
+    .gallery {
+      margin-top: 30px;
+    }
+    .gallery-card {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 150px;
+      color: #333;
+    }
+    #points, #level {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ouverture de Paquets de Cartes Animaux</h1>
+  <input type="text" id="username" placeholder="Entrez votre nom d'utilisateur" />
+  <button id="saveUsernameButton">Sauvegarder le Nom</button>
+
+  <br><br>
+
+  <button id="packButton">Ouvrir un Pack Normal</button>
+  <button id="specialPackButton">Ouvrir un Pack Spécial</button>
+
+  <br><br>
+
+  <button id="resetButton">Réinitialiser le Jeu</button>
+
+  <div id="pack" class="card-container"></div>
+
+  <h2>Votre Galerie</h2>
+  <div id="gallery" class="card-container"></div>
+
+  <div id="points">Points: 0</div>
+  <div id="level">Niveau: 1</div>
+
+  <script>
+    const rarities = [
+      { rarity: "secret", chance: 0.01, emoji: "💎", name: "Lapin Dorée Secret", description: "Plus rare que l'arc-en-ciel, mythique!", points: 200 },
+      { rarity: "arc-en-ciel", chance: 0.0001, emoji: "🦋", name: "Papillon", description: "Carte arc-en-ciel, la plus rare !", points: 100 },
+      { rarity: "diamant", chance: 2, emoji: "🐝", name: "Abeille", description: "Une abeille précieuse.", points: 50 },
+      { rarity: "platine", chance: 3, emoji: "🐦", name: "Cocka", description: "Un oiseau rare.", points: 30 },
+      { rarity: "or", chance: 5, emoji: "🐇", name: "Lapin", description: "Un lapin doré, rapide et agile.", points: 20 },
+      { rarity: "argent", chance: 10, emoji: "🦄", name: "Capybara", description: "Le plus grand rongeur, mais adorable.", points: 15 },
+      { rarity: "nostalgie", chance: 15, emoji: "🐹", name: "Cochon d'Inde", description: "Un compagnon fidèle.", points: 10 },
+      { rarity: "legendaire", chance: 20, emoji: "🐋", name: "Baleine", description: "Une créature majestueuse des océans.", points: 5 },
+      { rarity: "epic", chance: 30, emoji: "🦈", name: "Requin", description: "Un prédateur des mers.", points: 3 },
+      { rarity: "rare", chance: 60, emoji: "🐶", name: "Chien", description: "Le meilleur ami de l'homme.", points: 2 },
+      { rarity: "commun", chance: 80, emoji: "🐱", name: "Chat", description: "Le chat, toujours curieux et indépendant.", points: 1 },
+    ];
+
+    let username = localStorage.getItem('username') || '';
+    const collectedCards = new Map(JSON.parse(localStorage.getItem('collectedCards')) || []);
+    let totalPoints = parseInt(localStorage.getItem('totalPoints')) || 0;
+    let level = Math.floor(totalPoints / 100) + 1;
+
+    const pack = document.getElementById("pack");
+    const gallery = document.getElementById("gallery");
+    const usernameInput = document.getElementById("username");
+    const pointsDisplay = document.getElementById("points");
+    const levelDisplay = document.getElementById("level");
+
+    // Afficher les points et le niveau de l'utilisateur
+    function updatePointsAndLevel() {
+      pointsDisplay.textContent = `Points: ${totalPoints}`;
+      level = Math.floor(totalPoints / 100) + 1;  // Augmente le niveau tous les 100 points
+      levelDisplay.textContent = `Niveau: ${level}`;
+    }
+
+    // Sauvegarde des données dans le localStorage
+    function saveProgress() {
+      localStorage.setItem('collectedCards', JSON.stringify([...collectedCards]));
+      localStorage.setItem('totalPoints', totalPoints);
+      localStorage.setItem('username', username);
+    }
+
+    // Fonction pour choisir une carte en fonction des probabilités
+    function getRandomCard(special = false) {const cardRarities = rarities.filter(rarity => special || rarity.rarity !== "secret");
+      const randomChance = Math.random() * 100;
+      let accumulatedChance = 0;
+
+      for (const card of cardRarities) {
+        accumulatedChance += card.chance;
+        if (randomChance < accumulatedChance) {
+          return card;
+        }
+      }
+
+      return cardRarities[cardRarities.length - 1];
+    }
+
+    // Afficher les cartes du pack ouvert
+    function displayPack(cards) {
+      pack.innerHTML = ''; // Réinitialise le pack affiché
+      cards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.classList.add('card', card.rarity);
+        cardElement.innerHTML = `
+          <h3>${card.name}</h3>
+          <div class="emoji">${card.emoji}</div>
+          <p>${card.description}</p>
+          <p>Points: +${card.points}</p>
+        `;
+        pack.appendChild(cardElement);
+
+        // Ajouter la carte à la collection si elle n'y est pas déjà
+        const cardKey = `${card.name}-${card.emoji}`;
+        if (!collectedCards.has(cardKey)) {
+          collectedCards.set(cardKey, { ...card, quantity: 1 });
+        } else {
+          const existingCard = collectedCards.get(cardKey);
+          existingCard.quantity++;
+        }
+      });
+
+      updatePointsAndLevel();
+      saveProgress();
+    }
+
+    // Afficher les cartes de la galerie (collection)
+    function displayGallery() {
+      gallery.innerHTML = ''; // Réinitialise la galerie
+      collectedCards.forEach((card, key) => {
+        const cardElement = document.createElement('div');
+        cardElement.classList.add('gallery-card');
+        cardElement.innerHTML = `
+          <h4>${card.name}</h4>
+          <div class="emoji">${card.emoji}</div>
+          <p>Quantité: ${card.quantity}</p>
+        `;
+        gallery.appendChild(cardElement);
+      });
+    }
+
+    // Ouvrir un pack normal
+    document.getElementById("packButton").addEventListener('click', () => {
+      const cards = [];
+      for (let i = 0; i < 5; i++) {
+        const newCard = getRandomCard();
+        cards.push(newCard);
+        totalPoints += newCard.points;
+      }
+      displayPack(cards);
+      displayGallery();
+    });
+
+    // Ouvrir un pack spécial
+    document.getElementById("specialPackButton").addEventListener('click', () => {
+      const cards = [];
+      for (let i = 0; i < 5; i++) {
+        const newCard = getRandomCard(true);
+        cards.push(newCard);
+        totalPoints += newCard.points;
+      }
+      displayPack(cards);
+      displayGallery();
+    });
+
+    // Réinitialiser le jeu
+    document.getElementById("resetButton").addEventListener('click', () => {
+      if (confirm('Êtes-vous sûr de vouloir réinitialiser le jeu ?')) {
+        localStorage.clear();
+        location.reload();
+      }
+    });
+
+    // Sauvegarder le nom d'utilisateur
+    document.getElementById("saveUsernameButton").addEventListener('click', () => {
+      username = usernameInput.value.trim();
+      if (username) {
+        localStorage.setItem('username', username);
+        alert(`Nom d'utilisateur sauvegardé : ${username}`);
+      } else {
+        alert('Veuillez entrer un nom d\'utilisateur.');
+      }
+    });
+
+    // Initialiser l'interface avec les données sauvegardées
+    if (username) {
+      usernameInput.value = username;
+    }
+
+    updatePointsAndLevel();
+    displayGallery();
+  </script>
+</body>
+</html>
